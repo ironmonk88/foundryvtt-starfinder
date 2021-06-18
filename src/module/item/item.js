@@ -117,7 +117,10 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
             // Save DC
             let save = data.save || {};
-            labels.save = this._getSaveLabel(save, actorData, data);
+            this._getSaveLabel(save, actorData, data).then(saveDC => {
+                console.log(saveDC);
+                labels.save = saveDC
+            });
 
             // Damage
             let dam = data.damage || {};
@@ -128,7 +131,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
         this.labels = labels;
     }
 
-    _getSaveLabel(save, actorData, itemData) {
+    async _getSaveLabel(save, actorData, itemData) {
         if (!save?.type) return "";
         
         let dcFormula = save.dc?.toString();
@@ -161,19 +164,18 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
         this.actor?.setupRollContexts(rollContext);
     
-        const rollPromise = DiceSFRPG.createRoll({
+        const rollResult = await DiceSFRPG.createRoll({
             rollContext: rollContext,
             rollFormula: dcFormula,
             mainDie: 'd0',
             dialogOptions: { skipUI: true }
         });
+        console.log(rollResult);
 
-        rollPromise.then(rollResult => {
-            const returnValue = `DC ${rollResult.roll.total || ""} ${CONFIG.SFRPG.saves[save.type]} ${CONFIG.SFRPG.saveDescriptors[save.descriptor]}`;
-            this.labels.save = returnValue;
-        });
+        const returnValue = `DC ${rollResult.roll.total || ""} ${CONFIG.SFRPG.saves[save.type]} ${CONFIG.SFRPG.saveDescriptors[save.descriptor]}`;
+        //this.labels.save = returnValue;
 
-        return 10;
+        return Promise.resolve(returnValue);
     }
 
     /**
@@ -247,7 +249,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
     getChatData(htmlOptions) {
         const data = duplicate(this.data.data);
         const labels = this.labels;
-        labels.save = this._getSaveLabel(data.save, this.actor.data, data);
+        this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC);
 
         // Rich text description
         data.description.value = TextEditor.enrichHTML(data.description.value, htmlOptions);
@@ -516,7 +518,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
         // Spell saving throw text
         const abl = ad.attributes.keyability || "int";
-        labels.save = this._getSaveLabel(data.save, this.actor.data, data);
+        this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC);
 
         // Spell properties
         props.push(
@@ -534,7 +536,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
         // Spell saving throw text
         const abl = data.ability || ad.attributes.keyability || "str";
-        labels.save = this._getSaveLabel(data.save, this.actor.data, data);
+        this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC);
 
         // Feat properties
         props.push(
