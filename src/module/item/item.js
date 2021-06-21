@@ -175,7 +175,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
         const returnValue = `DC ${rollResult.roll.total || ""} ${CONFIG.SFRPG.saves[save.type]} ${CONFIG.SFRPG.saveDescriptors[save.descriptor]}`;
         //this.labels.save = returnValue;
 
-        return Promise.resolve(returnValue);
+        return returnValue;
     }
 
     /**
