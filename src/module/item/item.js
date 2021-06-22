@@ -117,10 +117,12 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
             // Save DC
             let save = data.save || {};
-            this._getSaveLabel(save, actorData, data).then(saveDC => {
-                console.log(saveDC);
+            let savePromise = this._getSaveLabel(save, actorData, data).then(saveDC => {
                 labels.save = saveDC
+                return saveDC;
             });
+            
+            console.log(Promise.all([savePromise]));
 
             // Damage
             let dam = data.damage || {};
