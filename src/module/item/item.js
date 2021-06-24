@@ -117,12 +117,9 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
             // Save DC
             let save = data.save || {};
-            let savePromise = this._getSaveLabel(save, actorData, data).then(saveDC => {
-                labels.save = saveDC
-                return saveDC;
-            });
+            Promise.all([this._getSaveLabel(save, actorData, data).then(saveDC => labels.save = saveDC)]);
             
-            console.log(Promise.all([savePromise]));
+            // Promise.all([savePromise]);
 
             // Damage
             let dam = data.damage || {};
@@ -172,7 +169,6 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
             mainDie: 'd0',
             dialogOptions: { skipUI: true }
         });
-        console.log(rollResult);
 
         const returnValue = `DC ${rollResult.roll.total || ""} ${CONFIG.SFRPG.saves[save.type]} ${CONFIG.SFRPG.saveDescriptors[save.descriptor]}`;
         //this.labels.save = returnValue;
@@ -251,7 +247,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
     getChatData(htmlOptions) {
         const data = duplicate(this.data.data);
         const labels = this.labels;
-        this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC);
+        Promise.all([this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC)]);
 
         // Rich text description
         data.description.value = TextEditor.enrichHTML(data.description.value, htmlOptions);
@@ -520,7 +516,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
         // Spell saving throw text
         const abl = ad.attributes.keyability || "int";
-        this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC);
+        // Promise.all([this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC)]);
 
         // Spell properties
         props.push(
@@ -538,7 +534,7 @@ export class ItemSFRPG extends mix(Item).with(ItemCapacityMixin) {
 
         // Spell saving throw text
         const abl = data.ability || ad.attributes.keyability || "str";
-        this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC);
+        // Promise.all([this._getSaveLabel(data.save, this.actor.data, data).then(saveDC => labels.save = saveDC)]);
 
         // Feat properties
         props.push(
