@@ -24,6 +24,8 @@ export class ActorSheetSFRPG extends ActorSheet {
             spellbook: new Set(),
             features: new Set()
         };
+
+        this._tooltips = null;
     }
 
     static get defaultOptions() {
@@ -231,7 +233,36 @@ export class ActorSheetSFRPG extends ActorSheet {
         if (this.stopRendering) {
             return this;
         }
+        
         return super.render(force, options);
+    }
+
+    async _render(...args) {
+        await super._render(...args);
+
+        if (this._tooltips === null) {
+            this._tooltips = tippy.delegate(`#${this.id}`, {
+                target: '[data-tippy-content]',
+                allowHTML: true,
+                arrow: false,
+                placement: 'top-start',
+                duration: [500, null],
+                delay: [800, null],
+                maxWidth: 600
+            });
+        }
+    }
+
+    async close(...args) {
+        if (this._tooltips !== null) {
+            for (const tooltip of this._tooltips) {
+                tooltip.destroy();
+            }
+
+            this._tooltips = null;
+        }
+
+        return super.close(...args);
     }
 
     /** @override */
@@ -688,16 +719,7 @@ export class ActorSheetSFRPG extends ActorSheet {
             div.append(props);
             li.append(div.hide());
 
-            div.slideDown(200, function() {
-                // On completion enable tippy tooltips for the new elements
-                tippy('[data-tippy-content]', {
-                    allowHTML: true,
-                    arrow: false,
-                    placement: 'top-start',
-                    duration: [500, null],
-                    delay: [800, null]
-                });
-            });
+            div.slideDown(200, function() { /* noop */ });
         }
         li.toggleClass('expanded');
 
